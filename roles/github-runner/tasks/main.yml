@@ -1,0 +1,76 @@
+- name: Setup Prompt
+  ansible.builtin.shell: set-prompt github-runner # actually bash rc code
+
+- name: Add github runner user
+  ansible.builtin.user:
+    name: grunner
+
+- name: Create github runner directory
+  ansible.builtin.file:
+    path: /actions-runner
+    state: directory  #have to give group and owner 
+    owner: grunner
+    group: grunner
+
+- name: Download & extract runner
+  ansible.builtin.unarchive:
+    src: https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz
+    dest: "/action-runner"
+    remote_src: yes
+    owner: grunner
+    group: grunner
+
+# we need authentication from our github runner ec2 to github to authenticate run pipleines
+- name: Download Github Cli repo
+  ansible.builtin.get_url:
+    url: https://cli.github.com/packages/rpm/gh-cli.repo
+    dest: /etc/yum.repos.d/gh-cli.repo
+
+- name: Install github cli
+  ansible.builtin.dnf:
+    name: gh
+    state: latest
+
+#things to do manually in gh-cli shell on runner then
+#gh auth login
+#create a registration token for organisation
+#gh -auth refresh -h github.com -s admin:org
+#multi line commads use | or > after key
+- name: Grab Token
+  ansible.builtin.shell: |
+   gh api --method POST -H "Accept:application/vnd.github+json" -H "X-Github-Api-Version:2022-11-28" /orgs/manupanand-freelance-developer/actions/runners/registration-token | jq.token
+  register: token
+  become_user: ec2-user # token can be fetched by ec2 -user because if gh  login was done by root user
+
+- name: Install libicu dependency
+  ansible.builtin.dnf:
+    name: libicu
+    state: latest
+# run config command with token 
+# to reduce  config roblem if already configured
+- name: Get runner count # get the count if count =0 run config
+  ansible.builtin.shell: |
+   gh api  -H "Accept:application/vnd.github+json" -H "X-Github-Api-Version:2022-11-28" /orgs/manupanand-freelance-developer/actions/runners | jq.total_count 
+  register: runner_count 
+  become_user: ec2-user
+
+
+- name: Configure Github runner #runner config will create problem on re run because it is already configured
+  ansible.builtin.shell: ./config.sh --url https://github.com/manupanand-freelance-developer --token {{token.stdout}} --runnergroup Default --name ec2 --labels rhel --work _work --replace
+  args:
+    chdir: /actions-runner # this user mus not be run as sudo
+  become_user: grunner
+  when: runner_count.std_out == "0"
+
+  # manualy
+  #sudo su -grunner
+  #cd /action-runner run ./run.sh file but when you close terminal it will exit
+  # so beeter to run svc.sh - as root user
+  #./svc.sh install grunner
+  #/svc.sh start or add in yml
+
+- name: Install runner service
+  ansible.builtin.shell: ./svc.sh install grunner ; ./svc.sh start
+  args:
+    chdir: /actions-runner
+  when: runner_count.std_out == 0
