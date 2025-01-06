@@ -5,6 +5,7 @@ jobs:
   Provison: #infra tool environment
     runs-on: ubuntu-latest
     steps:
-         - run: terraform --version
+         - uses: actions/checkout@v4 # get the code
+         - run: terraform init
 
   
