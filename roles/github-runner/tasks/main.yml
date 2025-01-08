@@ -74,3 +74,13 @@
   args:
     chdir: /actions-runner
   when: runner_count.std_out == 0
+
+- name: Download terraform repo
+  ansible.builtin.get_url:
+  url: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+  dest: /etc/yum.repos.d/hashicorp.repo
+
+- name: Install terraform
+  ansible.builtin.dnf:
+    name: terraform
+    state: latest

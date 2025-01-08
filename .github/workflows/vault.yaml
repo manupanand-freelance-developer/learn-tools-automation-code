@@ -1,4 +1,4 @@
-name: Provison tool infra
+name: Provison tool infra vault
 run-name: ${{ github.actor }} - ${{ github.event.head_commit.message }}
 on: [workflow_dispatch] # list
 jobs:
@@ -6,9 +6,5 @@ jobs:
     runs-on: self-hosted
     steps:
          - uses: actions/checkout@v4 # get the code
-         - name: Terraform init 
-           run: terraform init
-         - name: Terraform apply 
-           run: terraform apply -auto-approve
-
-  
+         - name: Run vault
+           run: ansible-playbook -i vault-internal.example.online, tool-setup.yml -e ansible_user=ec2-user -e ansible_password=  -e tool_name=vault
