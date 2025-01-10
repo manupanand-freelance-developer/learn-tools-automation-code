@@ -5,10 +5,14 @@ variable "tools" {
         policy_name=[
             "AdministartorAccess"
         ]
+        ports={}#ports to open
     }
     vault={
         instance_type="t3.small"
         policy_name=[    ]
+        ports={
+          vault=8200
+        }
     }
   }
 }

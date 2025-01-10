@@ -5,5 +5,6 @@ module "tool-infra-create" {
   instance_type=each.value["instance_type"]
   policy_name=each.value["policy_name"]
   hosted_zone_id=var.hosted_zone_id
+  ports=each.value["ports"]
 
 }

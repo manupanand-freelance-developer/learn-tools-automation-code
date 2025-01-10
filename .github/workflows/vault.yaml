@@ -7,6 +7,6 @@ jobs:
     steps:
          - uses: actions/checkout@v4 # get the code
          - name: Run vault
-           run: ansible-playbook -i vault-internal.example.online, tool-setup.yml -e ansible_user=ec2-user -e ansible_password=  -e tool_name=vault
+           run: ansible-playbook -i vault-internal.example.online, tool-setup.yml -e ansible_user=${{github-action secret}} -e ansible_password=${{github action secret}}  -e tool_name=vault
          - name:  complete
            run: echo complete
