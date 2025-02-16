@@ -1,0 +1,13 @@
+name: provison tool infra github runner
+run-name: ${{github.actor}}
+on: [workflow_dispatch]
+jobs:
+  Tools-terrafor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Copying terform files 
+        uses: action/checkout@v4
+        with:
+          sparse-checkout: revice
+          sparse-checkout-cone-mode: false
+        

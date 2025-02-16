@@ -1,0 +1,5 @@
+- name: Setup tool with anisble
+  hosts: all
+  become: true
+  roles:
+    - "{{tool_name}}"

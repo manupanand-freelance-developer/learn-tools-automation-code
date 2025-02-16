@@ -1,0 +1,22 @@
+- name: Setup Prompt
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    line: 'export PS1="\[\e[1;31m\]\u\[\e[0m\]@\[\e[1;34m\]{{github-runner}}\[\e[0m\] \w \$ "'
+    create: yes
+
+- name: Source the updated .bashrc
+  ansible.builtin.shell: |
+    source ~/.bashrc
+  args:
+    executable: /bin/bash
+
+- name: Create github directory
+  ansible.builtin.file: 
+    path: /actions-runner
+    state: directory
+
+- name: Download and extract gh runner
+  ansible.builtin.unarchive:
+    src: https://github.com/actions/runner/releases/download/v2.322.0/actions-runner-linux-x64-2.322.0.tar.gz
+    dest: "/actions-runner"
+    remote_src: true
