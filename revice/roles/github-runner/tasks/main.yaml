@@ -51,6 +51,10 @@
 #configure runner and get token
 
 # install libicu
+- name: Install libicu
+  ansible.builtin.dnf:
+    name: libicu
+    state: latest
 
 
 - name: grab token
