@@ -16,7 +16,7 @@
 
 - name: Create github directory
   ansible.builtin.file: 
-    path: /actions-runner
+    path: "/actions-runner"
     state: directory
   owner: grunner
   group: grunner
