@@ -18,8 +18,8 @@
   ansible.builtin.file: 
     path: "/actions-runner"
     state: directory
-  owner: grunner
-  group: grunner
+    owner: grunner
+    group: grunner
 
 - name: Download and extract gh runner
   ansible.builtin.unarchive:
