@@ -26,8 +26,8 @@
     src: https://github.com/actions/runner/releases/download/v2.322.0/actions-runner-linux-x64-2.322.0.tar.gz
     dest: "/actions-runner"
     remote_src: true
-  owner: grunner
-  group: grunner
+    owner: grunner
+    group: grunner
 
 # configuration token is dynamic rerun will change token
 #gh cli will solve this - to do authentication for ec2-runner with github for automation
