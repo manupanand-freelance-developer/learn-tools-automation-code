@@ -17,3 +17,9 @@ variable "tools" {
 variable "domain_name" {
   default = "manupanand.online"
 }
+variable "user_name" {
+  
+}
+variable "password"{
+
+}

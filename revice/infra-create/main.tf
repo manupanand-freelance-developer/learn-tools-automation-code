@@ -12,21 +12,33 @@ resource "aws_instance" "tool" {
       spot_instance_type = "persistent"
     }
   }
+    # Pass a shell script as user_data to set the password
+  user_data = <<-EOF
+              #!/bin/bash
+              # Set the password for the user "ec2-user" or any user you have
+              echo "ec2-user:password@TEST123" | chpasswd
+              # Optionally enable password authentication if it's disabled by default
+              sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+              systemctl restart sshd
+              EOF
+              
   tags={
     Name= var.name
   }
 }
 
 resource "aws_security_group" "tool-sg" {
+  
   name= "${var.name}-sg"
   description = "${var.name}-sg"
 
   egress = {
     from_port= 0
-    to_port=0
-    protocol="-1"
+    to_port = 0
+    protocol = "-1"
     cidr_blocks= ["0.0.0.0/0"]
   }
+
   # iterate particular block
   ingress = {
     from_port= 22
@@ -34,12 +46,13 @@ resource "aws_security_group" "tool-sg" {
     protocol="TCP"
     cidr_blocks= ["0.0.0.0/0"]
   }
+
   dynamic "ingress" {
-    for_each = var.ports
+    for_each = each.value.ports
     content {
       from_port= ingress.value
-      to_port=ingress.value
-      protocol="TCP"
+      to_port= ingress.value
+      protocol= "TCP"
       cidr_blocks= ["0.0.0.0/0"]
       description = ingress.key
     }
