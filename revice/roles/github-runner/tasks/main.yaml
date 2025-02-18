@@ -1,7 +1,7 @@
 - name: Setup Prompt
   ansible.builtin.lineinfile:
     path: "{{ ansible_env.HOME }}/.bashrc"
-    line: 'export PS1="\[\e[1;31m\]\u\[\e[0m\]@\[\e[1;34m\]{{github-runner}}\[\e[0m\] \w \$ "'
+    line: 'export PS1="\[\e[1;31m\]\u\[\e[0m\]@\[\e[1;34m\]{{tool_name}}\[\e[0m\] \w \$ "'
     create: yes
 
 - name: Source the updated .bashrc
@@ -10,13 +10,161 @@
   args:
     executable: /bin/bash
 
+- name: Add github runner user
+  ansible.builtin.user:
+    name: grunner
+
 - name: Create github directory
   ansible.builtin.file: 
     path: /actions-runner
     state: directory
+  owner: grunner
+  group: grunner
 
 - name: Download and extract gh runner
   ansible.builtin.unarchive:
     src: https://github.com/actions/runner/releases/download/v2.322.0/actions-runner-linux-x64-2.322.0.tar.gz
     dest: "/actions-runner"
     remote_src: true
+  owner: grunner
+  group: grunner
+
+# configuration token is dynamic rerun will change token
+#gh cli will solve this - to do authentication for ec2-runner with github for automation
+- name: Download github cli repo
+  ansible.builtin.get_url:
+    url: https://cli.github.com/packages/rpm/gh-cli.repo
+    dest: /etc/yum.repos.d/gh-cli.repo
+
+- name: Install gh-cli
+  ansible.builtin.yum:
+    name: gh
+    state: latest
+
+- name : Install Jq 
+  ansible.builtin.yum:
+    name: jq 
+    state: latest
+#gh auth login
+#gh auth refresh -h github.com -s admin:org
+
+#configure runner and get token
+
+# install libicu
+
+
+- name: grab token
+  ansible.builtin.shell: |
+    gh api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /orgs/manupanand-freelance-developer/actions/runners/registration-token | jq.token
+  register: token
+  become_user: ec2-user #token can be fetched by ec2 user as gh login was done by ec2-user
+
+# find if there is any runner exist
+- name: Get the number of runners available
+  ansible.builtin.shell: |
+    gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /orgs/manupanand-freelance-developer/actions/runners| jq.total_count
+  register: runner_count
+  become_user: ec2-user
+
+  # find runner is online or offline
+- name: runner is online or offline
+  ansible.builtin.shell: |
+    gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /orgs/manupanand-freelance-developer/actions/runners| jq '.runners[]|select(.name=="ec2")|.status' |xargs
+  register: runner_status
+  become_user: ec2-user
+
+
+- name: configure  github runner
+  ansible.builtin.shell: |
+    ./config.sh --url https://github.com/manupanand-freelance-developer --token {{token.stdout}}  --runnergroup Default --name aws-runner --label aws-selfhosted --work _work --replace
+  args:
+    chdir: /actions-runner
+  become_user: grunner
+  when: runner_count.stdout == "0"  or runner_status.stdout == "offline" # run when no runner exists
+
+- name: Start grunner service
+  ansible.builtin.shell: |
+    ./scv.sh install grunner ; ./scv.sh start
+  args:
+    chdir: /actions-runner
+  when: runner_count.stdout == "0"  or runner_status.stdout == "offline" # run when no runner exists
+
+# install terraform
+- name: Download terraform url
+  ansible.builtin.get_url:
+    url: https://rpm.release.hashicorp.com/RHEL/hashicorp.repo
+    dest: /etc/yum.repos.d/hashicorp.repo
+
+- name: Install terraform 
+  ansible.builtin.yum:
+     name: terraform
+     state: latest
+
+- name: Install Ansible 
+  ansible.builtin.yum:
+    name: ansible 
+    state: latest
+
+- name: Remove aws-cli 
+  ansible.builtin.yum:
+    name: awscli 
+    state: absent
+
+- name: Downlaod aws-cli
+  ansible.builtin.get_url:
+    url:  "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" 
+    dest: "/tmp/awscliv2.zip"
+    mode: '0644'
+
+- name: Extract AWS CLI
+  ansible.builtin.unarchive:
+    src: "/tmp/awscliv2.zip"
+    dest: "/tmp/"
+    remote_src: yes
+
+- name: Install AWS CLI
+  ansible.builtin.command:
+    cmd: "/tmp/aws/install"
+  become: true
+
+- name: Remove Docker
+  ansible.builtin.yum: 
+    name: 
+      - docker 
+      - docker-client 
+      - docker-client-latest 
+      - docker-common 
+      - docker-latest 
+      - docker-latest-logrotate 
+      - docker-logrotate 
+      - docker-engine 
+      - podman 
+      - runc
+
+- name: Install dnf-plugin-core
+  ansible.builtin.dnf:
+    name: dnf-plugins-core
+    state: latest
+
+- name: Add docker repo
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/rhel/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+
+- name: Install Docker
+  ansible.builtin.dnf:
+    name: 
+      - docker-ce 
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin 
+      - docker-compose-plugin
+    state: latest
+
+- name: Enable docker service
+  ansible.builtin.systemd_service:
+    name: docker
+    state: restarted
+    enabled: true
+
+#- name: Install Kubectl

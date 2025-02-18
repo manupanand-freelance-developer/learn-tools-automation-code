@@ -1,0 +1,1 @@
+ansible-playbook -i dnsrecord, tool-setup-playbook.yaml -e ansible_user=ec2-user -e ansible_password=pawwsord -e tool_name=github-runner

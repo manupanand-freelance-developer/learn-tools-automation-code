@@ -1,0 +1,22 @@
+- name: Install Yum-utils and shadow Yum-utils
+  ansible.builtin.yum:
+    name: 
+      - yum-utils 
+      - shadow-utils
+    state: latest
+
+- name: copy repo file 
+  ansible.builtin.get_url:
+    url: https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+    dest: /etc/yum.repos.d/hashicorp.repo
+
+- name: Install vault 
+  ansible.builtin.yum:
+    name: vault 
+    state: latest
+
+- name: Enable vault service
+  ansible.builtin.systemd_service:
+    name: vault
+    state: restarted
+    enabled: true
