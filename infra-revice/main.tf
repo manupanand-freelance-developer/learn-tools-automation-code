@@ -5,7 +5,7 @@ module "tool-infra" {
     instance_type=each.value["instance_type"]
     domain_name = var.domain_name
     zone_id=data.aws_route53_zone.zone.zone_id
-    ami_id = data.aws_ami.ami-data.ids
+    ami_id = data.aws_ami.ami-data.id
   
 }
 terraform {
