@@ -8,3 +8,6 @@ variable "tools" {
     }
   }
 }
+variable "domain_name" {
+  default = "manupanand.online"
+}

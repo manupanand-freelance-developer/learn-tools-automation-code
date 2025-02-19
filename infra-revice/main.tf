@@ -1,15 +1,8 @@
-resource "aws_instance" "name" {
-  for_each = var.tools
-    ami=data.aws_ami.ami-data.image_id
-    instance_type = "t3.micro"
-    
-  tags = {
-    Name="${each.key}-server"
-  }
-}
-
-terraform {
-  backend "s3" {
-    
-  }
+module "tool-infra" {
+    for_each = var.tools
+    source = "./infra"
+    name = each.key
+    instance_type=each.value["instance_type"]
+    domain_name = var.domain_name
+  
 }
