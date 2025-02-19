@@ -80,7 +80,13 @@
 
 - name: configure  github runner
   ansible.builtin.shell: |
-    ./config.sh --url https://github.com/manupanand-freelance-developer --token {{token.stdout}}  --runnergroup Default --name aws-runner --label aws-selfhosted --work _work --replace
+    ./config.sh --unattended --url https://github.com/manupanand-freelance-developer \
+       --token {{token.stdout}} \
+       --runnergroup Default \
+       --name aws-runner \
+       --label aws-selfhosted \
+       --work _work \
+       --replace
   args:
     chdir: /actions-runner
   become_user: grunner
