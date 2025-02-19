@@ -24,8 +24,3 @@ resource "aws_route53_record" "record-internal" {
   ttl  = 25
   records = [aws_instance.tool[each.key].private_ip]
 }
-terraform {
-  backend "s3" {
-    
-  }
-}
