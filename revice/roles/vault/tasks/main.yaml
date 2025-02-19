@@ -1,3 +1,10 @@
+- name: Setup Prompt
+  ansible.builtin.lineinfile:
+    path: "/home/ec2-user/.bashrc"
+    line: 'export PS1="\[\e[1;31m\]\u\[\e[0m\]@\[\e[1;34m\]{{tool_name}}\[\e[0m\] \w \$ "'
+    create: yes
+    mode: '0644'
+    
 - name: Install Yum-utils and shadow Yum-utils
   ansible.builtin.yum:
     name: 
