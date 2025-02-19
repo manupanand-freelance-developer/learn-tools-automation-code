@@ -153,6 +153,7 @@
       - docker-engine 
       - podman 
       - runc
+    state: absent
 
 - name: Install dnf-plugin-core
   ansible.builtin.dnf:
