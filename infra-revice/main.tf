@@ -9,3 +9,10 @@ module "tool-infra" {
     user_password = var.user_password
   
 }
+ 
+terraform {
+  backend "s3" {
+
+
+  }
+}
