@@ -6,3 +6,8 @@ module "tool-infra" {
     domain_name = var.domain_name
   
 }
+terraform {
+  backend "s3" {
+    
+  }
+}
