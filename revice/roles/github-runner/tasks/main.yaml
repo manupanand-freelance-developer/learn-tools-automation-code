@@ -113,15 +113,27 @@
       - terraform
      state: latest
 
+
 - name: Install Ansible 
   ansible.builtin.yum:
     name: ansible 
     state: latest
 
-- name: Remove aws-cli 
-  ansible.builtin.yum:
-    name: awscli 
-    state: absent
+- name: Check if AWS CLI is installed
+  ansible.builtin.command: aws --version
+  register: aws_check
+  failed_when: false
+  changed_when: false
+
+- name: Remove existing AWS CLI if installed
+  ansible.builtin.command: rm -rf /usr/local/aws-cli
+  when: "'aws-cli' in aws_check.stdout"
+
+
+# - name: Remove aws-cli 
+#   ansible.builtin.yum:
+#     name: awscli 
+#     state: absent
 
 - name: Downlaod aws-cli
   ansible.builtin.get_url:
@@ -137,8 +149,9 @@
 
 - name: Install AWS CLI
   ansible.builtin.command:
-    cmd: "/tmp/aws/install"
+    cmd: "/tmp/aws/install --update"
   become: true
+  when: "'aws-cli' in aws_check.stdout"
 
 - name: Remove Docker
   ansible.builtin.yum: 
