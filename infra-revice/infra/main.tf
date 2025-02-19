@@ -1,6 +1,6 @@
 resource "aws_instance" "tool" {
   
-    ami=data.aws_ami.ami-data.image_id
+    ami=var.ami_id
     instance_type = var.instance_type
     
   tags = {
@@ -10,7 +10,7 @@ resource "aws_instance" "tool" {
 
 
 resource "aws_route53_record" "record-public" {
-  zone_id = data.aws_route53_zone.zone.zone_id
+  zone_id = var.zone_id
   name = "${each.key}.${var.domain_name}"
   type = "A"
   ttl  = 25
@@ -18,7 +18,7 @@ resource "aws_route53_record" "record-public" {
   
 }
 resource "aws_route53_record" "record-internal" {
-  zone_id = data.aws_route53_zone.zone.zone_id
+  zone_id = var.zone_id
   name = "${each.key}.internal.${var.domain_name}"
   type = "A"
   ttl  = 25
