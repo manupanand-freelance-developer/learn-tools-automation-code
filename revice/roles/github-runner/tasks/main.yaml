@@ -1,8 +1,9 @@
 - name: Setup Prompt
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.bashrc"
+    path: "/home/ec2-user/.bashrc"
     line: 'export PS1="\[\e[1;31m\]\u\[\e[0m\]@\[\e[1;34m\]{{tool_name}}\[\e[0m\] \w \$ "'
     create: yes
+    mode: '0644'
 
 - name: Source the updated .bashrc
   ansible.builtin.shell: |
@@ -168,30 +169,29 @@
       - runc
     state: absent
 
-- name: Install dnf-plugin-core
+
+
+- name: Install Docker and Dependencies
   ansible.builtin.dnf:
-    name: dnf-plugins-core
+    name:
+      - docker
+      - curl
+      - jq
     state: latest
 
-- name: Add docker repo
-  ansible.builtin.get_url:
-    url: https://download.docker.com/linux/rhel/docker-ce.repo
-    dest: /etc/yum.repos.d/docker-ce.repo
 
-- name: Install Docker
-  ansible.builtin.dnf:
-    name: 
-      - docker-ce 
-      - docker-ce-cli
-      - containerd.io
-      - docker-buildx-plugin 
-      - docker-compose-plugin
-    state: latest
-
-- name: Enable docker service
+- name: Start and Enable Docker Service
   ansible.builtin.systemd_service:
     name: docker
-    state: restarted
+    state: started
     enabled: true
 
+
 #- name: Install Kubectl
+
+- name: install kubectl
+  ansible.builtin.get_url:
+    url: https://s3.us-west-2.amazonaws.com/amazon-eks/1.32.0/2024-12-20/bin/linux/amd64/kubectl
+    dest: "/usr/local/bin/kubectl"
+    mode: "0755"
+
