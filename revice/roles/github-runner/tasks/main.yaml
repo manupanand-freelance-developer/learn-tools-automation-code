@@ -99,15 +99,18 @@
     chdir: /actions-runner
   when: runner_count.stdout == "0"  or runner_status.stdout == "offline" # run when no runner exists
   become_user: grunner
+
 # install terraform
 - name: Download terraform url
   ansible.builtin.get_url:
-    url: https://rpm.release.hashicorp.com/RHEL/hashicorp.repo
+    url: https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
     dest: /etc/yum.repos.d/hashicorp.repo
 
 - name: Install terraform 
   ansible.builtin.yum:
-     name: terraform
+     name: 
+      - yum-utils
+      - terraform
      state: latest
 
 - name: Install Ansible 
