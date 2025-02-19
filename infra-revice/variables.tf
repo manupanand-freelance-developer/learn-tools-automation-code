@@ -11,3 +11,9 @@ variable "tools" {
 variable "domain_name" {
   default = "manupanand.online"
 }
+variable "user_password" {
+  description="Password for server"
+  type  = string
+  sensitive= true #keeps hiden from logs
+
+}

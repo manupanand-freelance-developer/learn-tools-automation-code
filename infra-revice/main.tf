@@ -6,10 +6,6 @@ module "tool-infra" {
     domain_name = var.domain_name
     zone_id=data.aws_route53_zone.zone.zone_id
     ami_id = data.aws_ami.ami-data.id
+    user_password = var.user_password
   
-}
-terraform {
-  backend "s3" {
-    
-  }
 }

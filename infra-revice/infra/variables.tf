@@ -13,3 +13,6 @@ variable "zone_id" {
 variable "ami_id" {
   
 }
+variable "user_password" {
+  
+}
