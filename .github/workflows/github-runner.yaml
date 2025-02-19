@@ -7,6 +7,6 @@ jobs:
     steps:
          - uses: actions/checkout@v4 # get the code
          - name: Run vault
-           run: ansible-playbook -i {{secrets.VAULT_SERVER}}, tool-setup.yml -e ansible_user=${{secrets.SSH_USER_NAME}} -e ansible_password=${{secrets.SSH_PASSWORD}}  -e tool_name=vault
+           run: ansible-playbook -i {{secrets.RUNNER_SERVER}}, tool-setup.yml -e ansible_user=${{secrets.SSH_USER_NAME}} -e ansible_password=${{secrets.SSH_PASSWORD}}  -e tool_name=github-runner
          - name:  complete
            run: echo complete
