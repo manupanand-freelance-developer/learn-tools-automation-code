@@ -40,10 +40,23 @@ resource "aws_security_group" "tools_security_group" {
   ingress={
       from_port = 22
       to_port   = 22
-      protocol  = "-1"
+      protocol  = "TCP"
       cidr_blocks=["0.0.0.0/0"]
   }
   #iterate particular block
+  dynamic "ingress" {
+    for_each = each.value.ports
+    content {
+      from_port = ingress.value
+      to_port = ingress.value
+      protocol = "TCP"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = ingress.key
+    }
+  }
+  tags = {
+    Name="${var.name}-sg"
+  }
   
   
 }

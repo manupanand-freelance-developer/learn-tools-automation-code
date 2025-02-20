@@ -16,3 +16,6 @@ variable "ami_id" {
 variable "user_password" {
   
 }
+variable "ports" {
+  
+}

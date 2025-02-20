@@ -2,9 +2,13 @@ variable "tools" {
   default = {
     github-runner={
         instance_type="t3.micro"
+        ports={}
     }
     vault={
         instance_type="t3.micro"
+        ports={
+          vault=8200
+        }
     }
   }
 }
