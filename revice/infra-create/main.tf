@@ -32,7 +32,7 @@ resource "aws_security_group" "tool-sg" {
   name= "${var.name}-sg"
   description = "${var.name}-sg"
 
-  egress = {
+  egress  {
     from_port= 0
     to_port = 0
     protocol = "-1"
@@ -40,7 +40,7 @@ resource "aws_security_group" "tool-sg" {
   }
 
   # iterate particular block
-  ingress = {
+  ingress {
     from_port= 22
     to_port=22
     protocol="TCP"
