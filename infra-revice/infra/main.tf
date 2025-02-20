@@ -2,6 +2,7 @@ resource "aws_instance" "tool" {
   
     ami=var.ami_id
     instance_type = var.instance_type
+    vpc_security_group_ids = [aws_security_group.tools_security_group.id]
 
     #spot instance
     instance_market_options {
