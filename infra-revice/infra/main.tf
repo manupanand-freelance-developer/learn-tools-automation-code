@@ -3,6 +3,15 @@ resource "aws_instance" "tool" {
     ami=var.ami_id
     instance_type = var.instance_type
 
+    #spot instance
+    instance_market_options {
+      market_type = "spot"
+      spot_options {
+        instance_interruption_behavior = "stop"
+        spot_instance_type = "persistent"
+      }
+    }
+
   
      # Pass a shell script as user_data to set the password
   user_data = <<-EOF
@@ -19,6 +28,25 @@ resource "aws_instance" "tool" {
   }
 }
 
+resource "aws_security_group" "tools_security_group" {
+  name="${var.name}-sg"
+  description = "${var.name}-security-group"
+  egress={
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks=["0.0.0.0/0"]
+  }
+  ingress={
+      from_port = 22
+      to_port   = 22
+      protocol  = "-1"
+      cidr_blocks=["0.0.0.0/0"]
+  }
+  #iterate particular block
+  
+  
+}
 
 resource "aws_route53_record" "record-public" {
  
