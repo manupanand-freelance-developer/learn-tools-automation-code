@@ -3,7 +3,7 @@ resource "aws_instance" "tool" {
     ami=var.ami_id
     instance_type = var.instance_type
     vpc_security_group_ids = [aws_security_group.tools_security_group.id]
-
+    iam_instance_profile = aws_iam_instance_profile.instance-profile.name
     #spot instance
     instance_market_options {
       market_type = "spot"

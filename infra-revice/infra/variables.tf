@@ -19,3 +19,6 @@ variable "user_password" {
 variable "ports" {
   
 }
+variable "policy_name" {
+  
+}

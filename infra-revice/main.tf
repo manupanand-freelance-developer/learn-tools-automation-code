@@ -8,6 +8,7 @@ module "tool-infra" {
     ami_id = data.aws_ami.ami-data.id
     user_password = var.user_password
     ports= each.value["ports"]
+    policy_name = each.value["policy_name"]
   
 }
  

@@ -3,9 +3,11 @@ variable "tools" {
     github-runner={
         instance_type="t3.micro"
         ports={}
+        policy_name=["AdministratorAccess"]
     }
     vault={
         instance_type="t3.micro"
+        policy_name=[]
         ports={
           vault=8200
         }
