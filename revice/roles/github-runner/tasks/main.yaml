@@ -95,10 +95,11 @@
 
 - name: Start grunner service
   ansible.builtin.shell: |
-    ./scv.sh install grunner ; ./scv.sh start
+    ./svc.sh install grunner ; ./svc.sh start
   args:
     chdir: /actions-runner
   when: runner_count.stdout == "0"  or runner_status.stdout == "offline" # run when no runner exists
+  become: true
   become_user: grunner
 
 # install terraform
@@ -192,4 +193,10 @@
     url: https://s3.us-west-2.amazonaws.com/amazon-eks/1.32.0/2024-12-20/bin/linux/amd64/kubectl
     dest: "/usr/local/bin/kubectl"
     mode: "0755"
+
+- name: Install HVAC for hashicorp run 
+  ansible.builtin.pip:
+    name: hvac 
+    state: present
+    executable: pip3
 
