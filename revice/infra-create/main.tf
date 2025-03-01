@@ -12,6 +12,10 @@ resource "aws_instance" "tool" {
       spot_instance_type = "persistent"
     }
   }
+  # volume
+  root_block_device {
+    volume_size = var.volume_size
+  }
     # Pass a shell script as user_data to set the password
   user_data = <<-EOF
               #!/bin/bash

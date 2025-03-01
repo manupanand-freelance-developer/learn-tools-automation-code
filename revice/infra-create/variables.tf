@@ -13,3 +13,6 @@ variable "domain_name" {
 variable "ports" {
   
 }
+variable "volume_size" {
+  
+}

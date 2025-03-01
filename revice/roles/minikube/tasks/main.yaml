@@ -1,0 +1,44 @@
+- name: Setup Prompt
+  ansible.builtin.lineinfile:
+    path: "/home/ec2-user/.bashrc"
+    line: 'export PS1="\[\e[1;31m\]\u\[\e[0m\]@\[\e[1;34m\]{{tool_name}}\[\e[0m\] \w \$ "'
+    create: yes
+    mode: '0644'
+
+- name: Source the updated .bashrc
+  ansible.builtin.shell: |
+    source ~/.bashrc
+  args:
+    executable: /bin/bash
+
+- name: Extended disk volume
+  ansible.builtin.shell: |
+    growpart /dev/nvme0n1 4
+    lvextend -r -L +10G /dev/mapper/RootVG-varVol
+  ignore_errors: true
+
+- name: Install minikube
+  ansible.builtin.dnf:
+    name: https://storage.googleapis.com/minikube/releases/latest/minikube-latest.x86_64.rpm
+    state: installed
+
+- name: Install Docker
+  ansible.builtin.dnf:
+    name: docker
+    state: latest
+
+
+- name: Enable  and start Docker
+  ansible.builtin.systemd_service:
+    name: docker
+    enabled: true
+    state: restarted
+
+- name: Download kubectl
+  ansible.builtin.get_url:
+    url: https://s3.us-west-2.amazonaws.com/amazon-eks/1.32.0/2024-12-20/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/kubectl
+    mode: '0755'
+
+- name: Start minikube
+  ansible.builtin.shell: minikube start --force
