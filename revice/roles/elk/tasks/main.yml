@@ -1,0 +1,64 @@
+- name: Setup Prompt
+  ansible.builtin.lineinfile:
+    path: "/home/ec2-user/.bashrc"
+    line: 'export PS1="\[\e[1;31m\]\u\[\e[0m\]@\[\e[1;34m\]{{tool_name}}\[\e[0m\] \w \$ "'
+    create: yes
+    mode: '0644'
+
+- name: Source the updated .bashrc
+  ansible.builtin.shell: |
+    source ~/.bashrc
+  args:
+    executable: /bin/bash
+
+- name: Copying repo file 
+  ansible.builtin.copy:
+     src: "{{ item }}"
+     dest: /etc/yum.repos.d/
+  loop: 
+    - kibana.repo
+    - logstash.repo
+    - elasticsearch.repo
+
+- name: Installing elastic seach
+  ansible.builtin.yum:
+     name:  
+        - elasticsearch
+        - kibana
+        - nginx
+        - logstash
+     state: present
+
+- name: copy nginx configuration file
+  ansible.builtin.copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+
+- name: Copy logstash conf 
+  ansible.builtin.template:
+    src: logstash.conf
+    dest: /etc/logstash/conf.d/logstash.conf 
+
+- name: Start Elk tools
+  ansible.builtin.systemd_service:
+    name: '{{item}}'
+    state: restarted
+  loop: 
+    - elasticsearch 
+    - kibana
+    - nginx # do reverse proxy of kibana
+    - logstash
+
+
+#
+## things to do manuualy
+  #     sudo systemctl daemon-reload
+  #     sudo systemctl enable elasticsearch.service
+  #     sudo systemctl start elasticsearch.service
+# sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password  -u elastic -s
+# store the password you get 
+#  '/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana'.
+# store token of kibana
+# get verification code
+#/usr/share/kibana/bin/kibana-verification-code
+# '/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s node'.

@@ -1,0 +1,1 @@
+secrets: "{{ lookup('hashi_vault','secret= tools/data/elasticsearch token={{vault_token}} url=http://vault.manupanand.online:8200 ')}}"
