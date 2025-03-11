@@ -27,7 +27,8 @@ variable "tools" {
         instance_type="r7i.large"
         policy_name= []
         ports={
-          vault=80
+          nginx=80
+          logstash=5044
         }
         volume_size=30
     }
