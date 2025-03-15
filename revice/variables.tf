@@ -32,6 +32,14 @@ variable "tools" {
         }
         volume_size=30
     }
+    jenkins={
+        instance_type="t3.medium"
+        policy_name= ["AmazonEC2ContainerRegistryPowerUser"]
+        ports={
+          jenkins=8080
+        }
+        volume_size=20
+    }
   }
 }
 variable "domain_name" {

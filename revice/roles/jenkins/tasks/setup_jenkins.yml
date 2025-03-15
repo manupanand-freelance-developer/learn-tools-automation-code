@@ -1,0 +1,63 @@
+
+# Installing required For Jenkins
+
+- name: Setup Prompt
+  ansible.builtin.lineinfile:
+    path: "/home/ec2-user/.bashrc"
+    line: 'export PS1="\[\e[1;31m\]\u\[\e[0m\]@\[\e[1;34m\]{{tool_name}}\[\e[0m\] \w \$ "'
+    create: yes
+    mode: '0644'
+
+- name: Source the updated .bashrc
+  ansible.builtin.shell: |
+    source ~/.bashrc
+  args:
+    executable: /bin/bash
+
+- name: Copy Jenkins repo
+  ansible.builtin.template: 
+    src: jenkins.repo
+    dest: /etc/yum.repos.d/jenkins.repo 
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Installing dependences 
+  ansible.builtin.dnf: 
+    name: 
+      - fontconfig
+      - git 
+      - java-17-amazon-corretto-devel
+      - jenkins
+    state: latest
+    update_cache: yes 
+
+- name: Create init.d directory
+  anisble.builtin.file: 
+    path: /var/lib/jenkins/init.groovy.d
+    state: directory 
+    owner: jenkins 
+    group: jenkins
+
+- name: Copy init groovy files
+  ansible.builtin.template:
+    src: "{{ item }}.groovy"
+    dest: /var/lib/jenkins/init.groovy.d/{{ item }}.groovy
+    owner: jenkins
+    group: jenkins
+  loop:
+    - 01-skip-unlock
+    - 02-admin-user
+    - 03-plugins
+
+
+- name: Enable Jenkins
+  ansible.builtin.systemd_service:
+    name: jenkins
+    state: started 
+    enabled: true
+
+- name: Install Ansible
+  ansible.builtin.dnf: 
+    name: ansible-core.x86_64
+    state: present
